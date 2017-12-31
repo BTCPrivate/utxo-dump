@@ -1,3 +1,9 @@
+# pertinent to file utxo/b128.py
+# which was adapted from
+# https://github.com/sr-gi/bitcoin_tools/blob/master/bitcoin_tools/analysis/status/utils.py
+# and has the below license
+#
+
 BSD 3-Clause License
 
 Copyright (c) 2016, Sergi Delgado Segura
