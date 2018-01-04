@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import itertools
 import plyvel
 import secp256k1
 import struct
@@ -26,17 +27,12 @@ def snap_utxos(bitcoind, bitcoind_datadir, stop_block):
 
 def dump_utxos(datadir, output, maxT=0):
 
-    db = plyvel.DB(os.path.join(datadir, "chainstate"), compression=None)
-    obf_key = map(ord, db.get((unhexlify("0e00") + "obfuscate_key"))[1:])
-
     f = open(output, 'wb')
     i = 0
-    for key, value in db.iterator(prefix=b'C'):
-        value = deobfuscate(obf_key, value)
+    for value in ldb_iter(datadir):
 
-        height, index, amt, script = parse_ldb_value(key, value)
-
-        print height, index, amt, hexlify(script)
+        tx_hash, height, index, amt, script = value
+        print tx_hash, height, index, amt, hexlify(script)
 
         f.write(struct.pack('<QQ', amt, len(script)))
         f.write(script)
@@ -49,7 +45,22 @@ def dump_utxos(datadir, output, maxT=0):
     f.close()
 
 
-def parse_ldb_value(key,raw):
+def ldb_iter(datadir):
+    db = plyvel.DB(os.path.join(datadir, "chainstate"), compression=None)
+    obf_key = map(ord, db.get((unhexlify("0e00") + "obfuscate_key"))[1:])
+
+    def norm(raw):
+        key, value = raw
+        value = deobfuscate(obf_key, value)
+
+        return parse_ldb_value(key, value)
+
+    it = db.iterator(prefix=b'C')
+    return itertools.imap(norm, it)
+
+
+def parse_ldb_value(key , raw):
+    tx_hash = hexlify(key[32:0:-1])
     key = hexlify(key)
     index = b128.decode(key[66:])
 
@@ -64,7 +75,7 @@ def parse_ldb_value(key,raw):
     script_code, raw = b128.read(raw)
     script = decompress_raw(script_code, unhexlify(raw))
 
-    return height, index, amt, script
+    return tx_hash, height, index, amt, script
 
 
 def decompress_raw(comp_type, data):
@@ -81,14 +92,15 @@ def decompress_raw(comp_type, data):
     elif comp_type == 2 or comp_type == 3:
         assert len(data) == 32
 
-        return chr(33) + comp_type + data + OP_CHECKSIG
+        return chr(33) + chr(comp_type) + data + OP_CHECKSIG
 
     elif comp_type == 4 or comp_type == 5:
         assert len(data) == 32
 
         comp_pubkey = chr(comp_type - 2) + data
         pubkey = secp256k1.PublicKey(
-            comp_pubkey, raw=True).serialize(compressed=False)
+            comp_pubkey, raw=True
+        ).serialize(compressed=False)
 
         return chr(65) + pubkey + OP_CHECKSIG
 
@@ -109,7 +121,7 @@ def read_file(path):
 
     head = f.read(16)
     while head != "":
-        amt,sz = struct.unpack('<QQ', head)
+        amt, sz = struct.unpack('<QQ', head)
         script = f.read(sz)
 
         assert f.read(1) == '\n'
@@ -118,10 +130,11 @@ def read_file(path):
 
     f.close()
 
+
 if __name__ == "__main__":
     action = sys.argv[1]
     if action == 'dump':
-        (block, bitcoind, datadir, out_file) = sys.argv[1:]
+        (block, bitcoind, datadir, out_file) = sys.argv[2:]
         snap_utxos(bitcoind, datadir, block)
         dump_utxos(datadir, out_file)
 
