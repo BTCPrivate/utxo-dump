@@ -25,14 +25,15 @@ def snap_utxos(bitcoind, bitcoind_datadir, stop_block):
     os.system(cmd)
 
 
-def dump_utxos(datadir, output, maxT=0):
+def dump_utxos(datadir, output, maxT=0,debug=True):
 
     f = open(output, 'wb')
     i = 0
     for value in ldb_iter(datadir):
 
         tx_hash, height, index, amt, script = value
-        print tx_hash, height, index, amt, hexlify(script)
+        if debug:
+            print hexlify(tx_hash[::-1]), height, index, amt, hexlify(script)
 
         f.write(struct.pack('<QQ', amt, len(script)))
         f.write(script)
@@ -59,12 +60,10 @@ def ldb_iter(datadir):
     return itertools.imap(norm, it)
 
 
-def parse_ldb_value(key , raw):
-    tx_hash = hexlify(key[32:0:-1])
-    key = hexlify(key)
-    index = b128.decode(key[66:])
+def parse_ldb_value(key, raw):
+    tx_hash = key[1:33]
 
-    raw = hexlify(raw)
+    index = b128.parse(key[33:])[0]
 
     code, raw = b128.read(raw)
     height = code >> 1
@@ -73,7 +72,7 @@ def parse_ldb_value(key , raw):
     amt = b128.decompress_amount(amt_comp)
 
     script_code, raw = b128.read(raw)
-    script = decompress_raw(script_code, unhexlify(raw))
+    script = decompress_raw(script_code, raw)
 
     return tx_hash, height, index, amt, script
 
