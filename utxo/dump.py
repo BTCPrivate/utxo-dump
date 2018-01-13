@@ -39,8 +39,10 @@ def dump_utxos(datadir, output_dir, n, convert_segwit, maxT=0, debug=True):
         i += 1
         if i % n == 0:
             f.close()
-            f = new_utxo_file(output_dir, k)
+
             k += 1
+            print('new file: {}'.format(k))
+            f = new_utxo_file(output_dir, k)
 
         if maxT != 0 and i >= maxT:
             break

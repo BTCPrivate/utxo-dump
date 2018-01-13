@@ -2,10 +2,10 @@
 
 from argparse import ArgumentParser
 from os.path import isfile, isdir
-from utxo.dump.util import read_utxos, utxo_file_name
+from utxo.util import read_utxos, utxo_file_name
 
 parser = ArgumentParser()
-parser.add_argument('--utxo_dir')
+parser.add_argument('utxo_dir')
 parser.add_argument('--filenum', type=int)
 args = parser.parse_args()
 
