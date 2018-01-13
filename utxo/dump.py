@@ -26,10 +26,11 @@ def dump_utxos(datadir, output_dir, n, convert_segwit, maxT=0, debug=True):
 
         tx_hash, height, index, amt, script = value
         if convert_segwit:
-            script = unwitness(script)
+            script = unwitness(script, debug)
 
         if debug:
-            print(hexlify(tx_hash[::-1]), height, index, amt, hexlify(script))
+            print(k, i, hexlify(tx_hash[::-1]), height, index,
+                  amt, hexlify(script))
 
         f.write(struct.pack('<QQ', amt, len(script)))
         f.write(script)

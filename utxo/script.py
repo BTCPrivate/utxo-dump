@@ -6,7 +6,7 @@ OP_EQUALVERIFY = chr(0x88)
 OP_CHECKSIG = chr(0xac)
 OP_EQUAL = chr(0x87)
 
-WITNESS_VERSION = ord(0)
+WITNESS_VERSION = chr(0)
 LOCKIN_BLOCK = 400000
 
 
@@ -58,10 +58,18 @@ def P2WSHtoP2SH(scriptPubKey):
     return OP_HASH160 + chr(20) + hashed + OP_EQUAL
 
 
-def unwitness(scriptPubKey):
+def unwitness(scriptPubKey, debug=False):
     if is_P2WPKH(scriptPubKey):
-        return P2WPKHtoP2PKH(scriptPubKey)
+        new = P2WPKHtoP2PKH(scriptPubKey)
+        if debug:
+            print('P2WPKH({}) -> P2PKH({})'.format(scriptPubKey, new))
+        return new
+
     elif is_P2WSH(scriptPubKey):
-        return P2WSHtoP2SH(scriptPubKey)
+        new = P2WSHtoP2SH(scriptPubKey)
+        if debug:
+            print('P2WSH({}) -> P2SH({})'.format(scriptPubKey, new))
+        return new
+
     else:
         return scriptPubKey

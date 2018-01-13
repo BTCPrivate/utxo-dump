@@ -18,7 +18,7 @@ parser.add_argument('--bitcoind')
 parser.add_argument('--blockheight', type=int)
 
 # debugging options
-parser.add_argument('--verbose', default=True)
+parser.add_argument('--verbose', default=False)
 parser.add_argument('--maxutxos', type=int, default=0)
 
 args = parser.parse_args()
