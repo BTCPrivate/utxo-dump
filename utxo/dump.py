@@ -21,6 +21,7 @@ def dump_utxos(datadir, output_dir, n, convert_segwit, maxT=0, debug=True):
     i = 0
     k = 1
 
+    print('new file')
     f = new_utxo_file(output_dir, k)
     for value in ldb_iter(datadir):
 

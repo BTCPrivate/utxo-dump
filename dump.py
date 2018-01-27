@@ -16,6 +16,7 @@ parser.add_argument('--transform_segwit', type=bool, default=True)
 parser.add_argument('--reindex', type=bool, default=False)
 parser.add_argument('--bitcoind')
 parser.add_argument('--blockheight', type=int)
+parser.add_argument('--chainstate-version', type=int, default=15)
 
 # debugging options
 parser.add_argument('--verbose', default=False)

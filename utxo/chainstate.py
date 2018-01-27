@@ -11,14 +11,19 @@ from utxo.script import OP_DUP, OP_HASH160, OP_EQUAL, \
 
 def ldb_iter(datadir):
     db = plyvel.DB(os.path.join(datadir, "chainstate"), compression=None)
-    obf_key = map(ord, db.get((unhexlify("0e00") + "obfuscate_key"))[1:])
+    obf_key = db.get((unhexlify("0e00") + "obfuscate_key"))
+    if obf_key is not None:
+        obf_key = map(ord, obf_key[1:])
 
     def norm(raw):
         key, value = raw
-        value = deobfuscate(obf_key, value)
+        if obf_key is not None:
+            value = deobfuscate(obf_key, value)
+            return parse_ldb_value(key, value)
 
-        return parse_ldb_value(key, value)
-
+        else:
+            return parse_ldb_value_old(value)
+        _
     it = db.iterator(prefix=b'C')
     return itertools.imap(norm, it)
 
@@ -38,6 +43,19 @@ def parse_ldb_value(key, raw):
     script = decompress_raw(script_code, raw)
 
     return tx_hash, height, index, amt, script
+
+
+def parse_ldb_value_old(raw):
+    version, raw = b128.read(raw)
+    code, raw = b128.read(raw)
+
+    is_coinbase = code & 1
+    vout = [code & 0x02, code & 0x04]
+    if not vout[0] and not vout[1]:
+        n = (code >> 3) + 1
+
+    else:
+        pass
 
 
 def decompress_raw(comp_type, data):

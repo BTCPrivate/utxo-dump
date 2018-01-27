@@ -6,7 +6,7 @@ from binascii import hexlify
 
 
 def utxo_file_name(directory, i):
-    return os.path.join(directory, "utxo_{:05}.bin".format(i))
+    return os.path.join(directory, "utxo-{:05}.bin".format(i))
 
 
 def read_utxos(directory, i):
