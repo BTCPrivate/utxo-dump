@@ -16,7 +16,12 @@ assert isdir(utxo_dir)
 if filenum is not None:
     read_utxos(utxo_dir, filenum)
 else:
-    i = 0
+    i = 1
+    total_amount = 0
     while isfile(utxo_file_name(utxo_dir, i)):
-        read_utxos(utxo_dir, i)
+        amt = read_utxos(utxo_dir, i)
+        print "file: {}: amount: {}".format(i, amt)
+        total_amount += amt
         i += 1
+
+    print "total: amount: {}".format(total_amount)
