@@ -10,7 +10,7 @@ parser.add_argument('bitcoind_datadir')
 parser.add_argument('utxo_dir')
 
 parser.add_argument('--nperfile', type=int, default=10E3)
-parser.add_argument('--transform_segwit', type=bool, default=True)
+parser.add_argument('--transform_segwit', type=bool, default=False)
 
 # to run bitcoind with -reindex-chainstate and -stopatheight provide all three
 parser.add_argument('--reindex', type=bool, default=False)
