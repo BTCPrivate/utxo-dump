@@ -17,6 +17,7 @@ def ldb_iter(datadir):
     if obf_key is not None:
         pre = 'C'
         obf_key = map(ord, obf_key[1:])
+
     else:
         pre = 'c'
 
@@ -24,13 +25,17 @@ def ldb_iter(datadir):
         key, value = raw
         if obf_key is not None:
             value = deobfuscate(obf_key, value)
-            return parse_ldb_value(key, value)[0]
+            return parse_ldb_value(key, value)
 
         else:
             return parse_ldb_value_old(key, value)
 
     it = db.iterator(prefix=pre)
-    return itertools.imap(norm, it)
+    it = itertools.imap(norm, it)
+    if obf_key is None:
+        it = itertools.chain.from_iterable(it)
+
+    return it
 
 
 def parse_ldb_value(key, raw):
@@ -45,7 +50,7 @@ def parse_ldb_value(key, raw):
     amt = b128.decompress_amount(amt_comp)
 
     script_code, raw = b128.read(raw)
-    script = decompress_raw(script_code, raw)
+    script = decompress_raw(script_code, raw)[0]
 
     return tx_hash, height, index, amt, script
 
@@ -84,6 +89,7 @@ def parse_ldb_value_old(key, raw):
         i += 1
 
     height, raw = b128.read(raw)
+    assert len(raw) == 0
 
     ret = [u[:1] + (height,) + u[2:] for u in utxos]
     return ret
