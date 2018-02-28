@@ -62,7 +62,7 @@ def write_vmcp_data(output_dir, k, vmcp_file):
     def addr_to_script(addr):
         if addr[:2] == 't3':
             scr = 'a914' + a2b_hashed_base58(addr)[2:].encode('hex') + '87'
-            return scr
+            return scr.decode('hex')
 
         assert addr[:2] == 't1'
         k = Key.from_text(addr)
