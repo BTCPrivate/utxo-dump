@@ -1,5 +1,4 @@
 import b128
-import binascii
 import itertools
 import os
 import plyvel
