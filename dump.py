@@ -16,7 +16,8 @@ parser.add_argument('--transform_segwit', type=bool, default=False)
 parser.add_argument('--reindex', type=bool, default=False)
 parser.add_argument('--bitcoind')
 parser.add_argument('--blockheight', type=int)
-parser.add_argument('--chainstate-version', type=int, default=15)
+parser.add_argument('--chainstate_version', type=int, default=15)
+parser.add_argument('--vmcp_file')
 
 # debugging options
 parser.add_argument('--verbose', default=False)
@@ -35,4 +36,4 @@ if(args.reindex or args.bitcoind or args.blockheight):
     snap_utxos(args.bitcoind, args.bitcoind_datadir, args.blockheight)
 
 dump_utxos(args.bitcoind_datadir, args.utxo_dir, args.nperfile,
-           args.transform_segwit, args.maxutxos, debug=args.verbose)
+           args.transform_segwit, args.maxutxos, debug=args.verbose, vmcp_file='vmcp.csv')
